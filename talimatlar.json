@@ -1,0 +1,51 @@
+{
+  "gruplar": [
+    {
+      "ad": "Deney Talimatları",
+      "tur": "deney",
+      "altgruplar": [
+        {
+          "ad": "Seramik Yapıştırıcıları",
+          "talimatlar": [
+            {
+              "ad": "Derz Dolgularda Aşınma Direnci Tayini",
+              "kod": "TL0348",
+              "pdf": "TL0348-asınma-direnci.pdf"
+            },
+            {
+              "ad": "Seramik Yapıştırıcı Hazırlama",
+              "kod": "TL0201",
+              "pdf": "TL0201-yapistirici-hazirlama.pdf"
+            }
+          ]
+        },
+        {
+          "ad": "Kimyasal Analizler",
+          "talimatlar": [
+            {
+              "ad": "pH Ölçüm Talimatı",
+              "kod": "TL0102",
+              "pdf": "TL0102-ph-olcum.pdf"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ad": "Cihaz Kullanma Talimatları",
+      "tur": "cihaz",
+      "altgruplar": [
+        {
+          "ad": "Analitik Teraziler",
+          "talimatlar": [
+            {
+              "ad": "Terazi Kalibrasyon Talimatı",
+              "kod": "CT-001",
+              "pdf": "CT001-terazi-kalibrasyon.pdf"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
