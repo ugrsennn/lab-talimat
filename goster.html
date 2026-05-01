@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Talimat</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: sans-serif; background: #1a1a2e; }
+
+#yukleniyor {
+  position: fixed; inset: 0;
+  background: #1a1a2e;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: white; gap: 16px;
+  z-index: 99;
+  transition: opacity 0.3s;
+}
+#yukleniyor.gizle { opacity: 0; pointer-events: none; }
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid rgba(255,255,255,0.2);
+  border-top-color: #4ade80;
+  border-radius: 50%;
+  animation: don 0.8s linear infinite;
+}
+@keyframes don { to { transform: rotate(360deg); } }
+#yukleniyor p { font-size: 14px; opacity: 0.6; }
+
+#bar {
+  display: none;
+  background: #1a1a2e;
+  color: white;
+  padding: 10px 16px;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 2px solid #4ade80;
+  position: sticky; top: 0; z-index: 10;
+}
+#bar.goster { display: flex; }
+#bar-baslik { font-size: 13px; font-weight: 700; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#bar-alt { font-size: 11px; opacity: 0.55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+#cerceve {
+  display: none;
+  width: 100%;
+  border: none;
+  height: calc(100vh - 54px);
+}
+#cerceve.goster { display: block; }
+
+#kart {
+  display: none;
+  padding: 20px 16px;
+  background: #f0f2f5;
+  min-height: calc(100vh - 54px);
+}
+#kart.goster { display: block; }
+
+.k { background: white; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+.k-ust { font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.k-ad { font-size: 19px; font-weight: 700; color: #1a1a2e; line-height: 1.3; }
+.kod-badge { display: inline-block; margin-top: 6px; font-size: 11px; background: #f3f4f6; color: #374151; padding: 3px 8px; border-radius: 4px; font-weight: 600; }
+
+.dl-btn {
+  display: block; width: 100%;
+  background: #4ade80; color: #14532d;
+  border: none; border-radius: 10px;
+  padding: 14px; font-size: 15px; font-weight: 700;
+  text-align: center; text-decoration: none;
+  cursor: pointer; margin-top: 4px;
+  font-family: sans-serif;
+}
+.dl-btn:hover { background: #22c55e; }
+
+.yok { text-align: center; padding: 40px 20px; color: #6b7280; }
+.yok-icon { font-size: 40px; margin-bottom: 12px; }
+.yok p { font-size: 13px; line-height: 1.6; }
+
+.ana-link { display: block; text-align: center; margin-top: 16px; color: #6b7280; font-size: 12px; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div id="yukleniyor">
+  <div class="spinner"></div>
+  <p>Talimat açılıyor...</p>
+</div>
+
+<div id="bar">
+  <div style="flex:1;overflow:hidden">
+    <div id="bar-baslik"></div>
+    <div id="bar-alt">Laboratuvar Talimatı</div>
+  </div>
+</div>
+
+<iframe id="cerceve" allowfullscreen></iframe>
+<div id="kart"></div>
+
+<script>
+function p(n) {
+  return decodeURIComponent(new URLSearchParams(location.search).get(n) || '');
+}
+
+const ad   = p('ad');
+const pdf  = p('pdf');
+const kod  = p('kod');
+const base = location.href.replace(/\/goster\.html.*/, '');
+
+document.title = ad || 'Talimat';
+document.getElementById('bar-baslik').textContent = ad || 'Talimat';
+if(kod) document.getElementById('bar-alt').textContent = kod + ' · Laboratuvar Talimatı';
+
+document.getElementById('bar').classList.add('goster');
+
+function yuklendiGizle() {
+  document.getElementById('yukleniyor').classList.add('gizle');
+}
+
+if(pdf) {
+  const pdfUrl = base + '/' + pdf;
+  const fr = document.getElementById('cerceve');
+
+  // iOS PDF iframe çalışmaz — direkt link aç
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+  if(isIOS) {
+    // iOS'ta iframe çalışmaz, kart göster ve indir linki ver
+    kartGoster(pdfUrl);
+  } else {
+    fr.src = pdfUrl;
+    fr.classList.add('goster');
+    fr.onload = yuklendiGizle;
+    setTimeout(() => {
+      if(!fr.contentDocument) yuklendiGizle();
+      // Eğer PDF yüklenemezse karta geç
+    }, 5000);
+    setTimeout(yuklendiGizle, 1500);
+  }
+
+} else {
+  kartGoster(null);
+}
+
+function kartGoster(pdfUrl) {
+  yuklendiGizle();
+  const k = document.getElementById('kart');
+  k.classList.add('goster');
+  k.innerHTML = `
+    <div class="k">
+      <div class="k-ust">Laboratuvar Talimatı</div>
+      <div class="k-ad">${ad || '—'}</div>
+      ${kod ? `<span class="kod-badge">${kod}</span>` : ''}
+    </div>
+    ${pdfUrl ? `
+      <div class="k">
+        <div class="k-ust" style="margin-bottom:10px">PDF Dosyası</div>
+        <a class="dl-btn" href="${pdfUrl}" target="_blank">📄 Talimatı Aç / İndir</a>
+      </div>
+    ` : `
+      <div class="k yok">
+        <div class="yok-icon">📭</div>
+        <p>Bu talimata henüz PDF eklenmemiş.</p>
+      </div>
+    `}
+    <a class="ana-link" href="${base}/">← Tüm Talimatlar</a>
+  `;
+}
+</script>
+</body>
+</html>
